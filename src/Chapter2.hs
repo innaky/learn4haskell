@@ -336,7 +336,11 @@ from it!
 ghci> :l src/Chapter2.hs
 -}
 subList :: Int -> Int -> [a] -> [a]
-subList = error "subList: Not implemented!"
+subList _ _ [] = []
+subList _ 0 _ = []
+subList x y (h:t) = let first_part = drop x (h:t)
+                        second_part = take ((y - x) + 1) first_part
+                     in second_part
 
 {- |
 =⚔️= Task 4
@@ -349,8 +353,9 @@ Implement a function that returns only the first half of a given list.
 "b"
 -}
 -- PUT THE FUNCTION TYPE IN HERE
-firstHalf l = error "firstHalf: Not implemented!"
-
+firstHalf :: [a] -> [a]
+firstHalf [] = []
+firstHalf x = let list_length = div (length(x)) 2 in take list_length x
 
 {- |
 =🛡= Pattern matching
@@ -500,8 +505,10 @@ True
 >>> isThird42 [42, 42, 0, 42]
 False
 -}
-isThird42 = error "isThird42: Not implemented!"
 
+isThird42 :: [Int] -> Bool
+isThird42 (_ : _ : 42 : _) = True
+isThird42 _ = False
 
 {- |
 =🛡= Recursion
@@ -605,8 +612,8 @@ Implement a function that duplicates each element of the list
 
 -}
 duplicate :: [a] -> [a]
-duplicate = error "duplicate: Not implemented!"
-
+duplicate [] = []
+duplicate (h:t) = h:h : duplicate(t)
 
 {- |
 =⚔️= Task 7
@@ -620,7 +627,13 @@ Write a function that takes elements of a list only on even positions.
 >>> takeEven [2, 1, 3, 5, 4]
 [2,3,4]
 -}
-takeEven = error "takeEven: Not implemented!"
+takeEven :: [a] -> [a]
+takeEven [] = []
+takeEven l = go 0 l
+  where
+    go :: Int -> [a] -> [a]
+    go _ [] = []
+    go pos (h:t) = if even pos then h: go (pos + 1) t else go (pos + 1) t
 
 {- |
 =🛡= Higher-order functions
@@ -727,7 +740,8 @@ value of the element itself
 🕯 HINT: Use combination of 'map' and 'replicate'
 -}
 smartReplicate :: [Int] -> [Int]
-smartReplicate l = error "smartReplicate: Not implemented!"
+smartReplicate [] = []
+smartReplicate l = let sublst = map (\x -> replicate x x) l in concat sublst
 
 {- |
 =⚔️= Task 9
@@ -740,8 +754,10 @@ the list with only those lists that contain a passed element.
 
 🕯 HINT: Use the 'elem' function to check whether an element belongs to a list
 -}
-contains = error "contains: Not implemented!"
-
+contains :: Int -> [[Int]] -> [[Int]]
+contains _ [] = []
+contains x (h:t) =
+  let result = [] in if x `elem` h then h:contains x t else contains x t
 
 {- |
 =🛡= Eta-reduction
@@ -780,13 +796,14 @@ Let's now try to eta-reduce some of the functions and ensure that we
 mastered the skill of eta-reducing.
 -}
 divideTenBy :: Int -> Int
-divideTenBy x = div 10 x
+divideTenBy = div 10 
 
 -- TODO: type ;)
-listElementsLessThan x l = filter (< x) l
+listElementsLessThan :: Ord a => a -> [a] -> [a]
+listElementsLessThan x = filter (< x)
 
--- Can you eta-reduce this one???
-pairMul xs ys = zipWith (*) xs ys
+pairMul :: Num a => [a] -> [a] -> [a]
+pairMul = zipWith (*)
 
 {- |
 =🛡= Lazy evaluation
@@ -841,7 +858,9 @@ list.
 
 🕯 HINT: Use the 'cycle' function
 -}
-rotate = error "rotate: Not implemented!"
+rotate :: Int -> [a] -> [a]
+rotate _ [] = []
+rotate x list = take (length list) (drop x (cycle list))
 
 {- |
 =💣= Task 12*
@@ -857,8 +876,12 @@ and reverses it.
   function, but in this task, you need to implement it manually. No
   cheating!
 -}
-rewind = error "rewind: Not Implemented!"
-
+rewind :: [a] -> [a]
+rewind = internal []
+  where
+    internal :: [a] -> [a] -> [a]
+    internal ac [] = ac
+    internal ac (h:t) = internal (h:ac) t
 
 {-
 You did it! Now it is time to the open pull request with your changes
